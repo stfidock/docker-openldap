@@ -25,3 +25,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # do not fail on shell formater
           VALIDATE_SHELL_SHFMT: false
+          # no markdown prettier
+          FIX_MARKDOWN_PRETTIER: false
+          # no yaml prettier
+          FIX_YAML_PRETTIER: false
