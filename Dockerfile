@@ -28,6 +28,9 @@ RUN apt-get remove -y --purge --auto-remove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# COPY the content from rootfs into the container
+ADD rootfs/ /
+
 # make the default ldap port available
 EXPOSE 389 636
 
@@ -43,8 +46,6 @@ VOLUME /var/lib/ldap
 #    libsasl2-modules-sql \
 #    krb5-kdc-ldap \
 
-## Add service directory to /container/service
-#ADD service /container/service
 
 ## Use baseimage install-service script
 ## https://github.com/osixia/docker-light-baseimage/blob/master/image/tool/install-service
