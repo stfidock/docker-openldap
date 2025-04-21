@@ -11,8 +11,14 @@ ARG OPENLDAP_ORGANISATION
 
 # Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 # If explicit uid or gid is given, use it.
-RUN LDAP_GID=101; if [ -n "${OPENLDAP_GID}" ]; then LDAP_GID="${OPENLDAP_GID}"; fi; groupadd -r -g ${LDAP_GID} openldap;
-RUN LDAP_UID=100; if [ -n "${OPENLDAP_UID}" ]; then LDAP_UID="${OPENLDAP_UID}"; fi; useradd -r -g openldap -u ${LDAP_UID} openldap
+RUN echo "Creating group " \
+    && LDAP_GID=101 \
+    && if [ -n "${OPENLDAP_GID}" ]; then LDAP_GID="${OPENLDAP_GID}"; fi \
+    && groupadd -r -g ${LDAP_GID} openldap \
+    && echo "Creating user" \
+    && LDAP_UID=100 \
+    && if [ -n "${OPENLDAP_UID}" ]; then LDAP_UID="${OPENLDAP_UID}"; fi \
+    && useradd -l -r -g openldap -u ${LDAP_UID} openldap
 
 # now install additional tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,10 +26,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         openssl \
         ldap-utils \
         slapd \
-        slapd-contrib
-
-# cleanup
-RUN apt-get remove -y --purge --auto-remove \
+        slapd-contrib \
+    && apt-get remove -y --purge --auto-remove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -53,8 +57,8 @@ VOLUME /var/lib/ldap
 ## Add default env variables
 #ADD environment /container/environment/99-default
 
-COPY scripts/slapd.sh /usr/local/sbin/slapd.sh
-RUN chmod 755 /usr/local/sbin/slapd.sh
+# COPY scripts/slapd.sh /usr/local/sbin/slapd.sh
+# RUN chmod 755 /usr/local/sbin/slapd.sh
 
 #ENTRYPOINT [ "/usr/local/sbin/slapd.sh" ]
 #CMD [ "-4" ]
