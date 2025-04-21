@@ -1,0 +1,35 @@
+---
+
+name: Lint Code Base
+
+permissions: read-all
+
+on: [push, pull_request]
+
+jobs:
+  linter:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Lint Code Base
+        uses: github/super-linter@v7
+        env:
+          # To report GitHub Actions status checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # do not fail on shell formater
+          VALIDATE_SHELL_SHFMT: false
+          # no markdown prettier
+          VALIDATE_MARKDOWN_PRETTIER: false
+          # no yaml prettier
+          VALIDATE_YAML_PRETTIER: false
+          # do not use the checkov, we just hadolint
+          VALIDATE_CHECKOV: false
+          # disable the action linter, as it freaks out with an shellcheck failure, that is not a failure
+          VALIDATE_GITHUB_ACTIONS: false
