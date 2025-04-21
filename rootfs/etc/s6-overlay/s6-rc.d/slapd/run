@@ -9,37 +9,6 @@ bootstrapFile="/var/lib/ldap/docker_bootstrapped"
 # --------------------------------------------------------------------------------
 # functions
 # --------------------------------------------------------------------------------
-fLog() {
-    echo "slapd.sh: ${@}" >&2
-}
-
-fBootStrap() {
-    # check if the bootstrap was already done
-    #
-    if [ -e "${bootstrapFile}" ]; then
-        whenBootstrapped=$(cat "${bootstrapFile}")
-        fLog "openldap already bootstrapped at ${whenBootstrapped}"
-        return
-    fi
-
-    fLog "configuring slapd for first run"
-    cat <<EOF | debconf-set-selections
-slapd slapd/password1 password ${OPENLDAP_ROOTPASS}
-slapd slapd/password2 password ${OPENLDAP_ROOTPASS}
-slapd slapd/dump_database_destdir string /var/backups/slapd-VERSION
-slapd slapd/domain string ${OPENLDAP_DOMAIN}
-slapd shared/organization string ${OPENLDAP_ORGANISATION}
-slapd slapd/backend string MDB
-slapd slapd/purge_database boolean true
-slapd slapd/move_old_database boolean true
-slapd slapd/allow_ldap_v2 boolean false
-slapd slapd/no_configuration boolean false
-slapd slapd/dump_database select when needed
-EOF
-
-    DEBIAN_FRONTEND=noninteractive dpkg-reconfigure slapd
-    date > "${bootstrapFile}"
-}
 
 # --------------------------------------------------------------------------------
 # main
@@ -51,13 +20,12 @@ OPENLDAP_ROOTPASS=${OPENLDAP_ROOTPASS:-"superSecurePassword"}
 OPENLDAP_DOMAIN=${OPENLDAP_DOMAIN:-"example.org"}
 OPENLDAP_ORGANISATION=${OPENLDAP_ORGANISATION:-"Example Org Inc."}
 
-fBootStrap
 
 # restict slapd memory
 ULIMIT_NOFILE_SYS=$(ulimit -Sn)
 ULIMIT_NOFILE_SET=${OPENLDAP_NOFILE:-16384}
 ULIMIT_NOFILE=$(( $ULIMIT_NOFILE_SYS < $ULIMIT_NOFILE_SET ? $ULIMIT_NOFILE_SYS : $ULIMIT_NOFILE_SET ))
 
-fLog "starting slapd"
+echo >&2 "starting slapd"
 ulimit -Sn "$ULIMIT_NOFILE"
 exec /usr/sbin/slapd -h "ldap:///" -u openldap -g openldap -d 2 
