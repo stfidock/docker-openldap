@@ -1,5 +1,5 @@
 # TODO: create a small default image
-FROM stfidock:docker-base
+FROM stfidock/docker-base:latest
 
 ENV LC_ALL=C 
 ENV DEBIAN_FRONTEND=noninteractive
