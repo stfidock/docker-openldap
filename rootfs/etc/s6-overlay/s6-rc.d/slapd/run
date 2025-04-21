@@ -4,11 +4,6 @@
 # base settings and variables
 # --------------------------------------------------------------------------------
 set -eu
-bootstrapFile="/var/lib/ldap/docker_bootstrapped"
-
-# --------------------------------------------------------------------------------
-# functions
-# --------------------------------------------------------------------------------
 
 # --------------------------------------------------------------------------------
 # main
@@ -19,7 +14,6 @@ bootstrapFile="/var/lib/ldap/docker_bootstrapped"
 OPENLDAP_ROOTPASS=${OPENLDAP_ROOTPASS:-"superSecurePassword"}
 OPENLDAP_DOMAIN=${OPENLDAP_DOMAIN:-"example.org"}
 OPENLDAP_ORGANISATION=${OPENLDAP_ORGANISATION:-"Example Org Inc."}
-
 
 # restict slapd memory
 ULIMIT_NOFILE_SYS=$(ulimit -Sn)
