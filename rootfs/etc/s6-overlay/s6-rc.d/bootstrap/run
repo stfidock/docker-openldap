@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# --------------------------------------------------------------------------------
+# base settings and variables
+# --------------------------------------------------------------------------------
+set -eu
+bootstrapFile="/var/lib/ldap/docker_bootstrapped"
+
+# --------------------------------------------------------------------------------
+# functions
+# --------------------------------------------------------------------------------
+fBootStrap() {
+    # check if the bootstrap was already done
+    #
+    if [ -e "${bootstrapFile}" ]; then
+        whenBootstrapped=$(cat "${bootstrapFile}")
+        echo >&2 "openldap already bootstrapped at ${whenBootstrapped}"
+        return
+    fi
+
+    echo >&2 "configuring slapd for first run"
+    cat <<EOF | debconf-set-selections
+slapd slapd/password1 password ${OPENLDAP_ROOTPASS}
+slapd slapd/password2 password ${OPENLDAP_ROOTPASS}
+slapd slapd/dump_database_destdir string /var/backups/slapd-VERSION
+slapd slapd/domain string ${OPENLDAP_DOMAIN}
+slapd shared/organization string ${OPENLDAP_ORGANISATION}
+slapd slapd/backend string MDB
+slapd slapd/purge_database boolean true
+slapd slapd/move_old_database boolean true
+slapd slapd/allow_ldap_v2 boolean false
+slapd slapd/no_configuration boolean false
+slapd slapd/dump_database select when needed
+EOF
+
+    DEBIAN_FRONTEND=noninteractive dpkg-reconfigure slapd
+    date > "${bootstrapFile}"
+}
+
+# --------------------------------------------------------------------------------
+# main
+# --------------------------------------------------------------------------------
+
+# set some defaults for testing, add a : before to make the script fail
+#
+OPENLDAP_ROOTPASS=${OPENLDAP_ROOTPASS:-"superSecurePassword"}
+OPENLDAP_DOMAIN=${OPENLDAP_DOMAIN:-"example.org"}
+OPENLDAP_ORGANISATION=${OPENLDAP_ORGANISATION:-"Example Org Inc."}
+
+fBootStrap
