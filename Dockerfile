@@ -1,5 +1,4 @@
-# TODO: create a small default image
-FROM stfidock/docker-base:latest
+FROM stfidock/baseimage:latest
 
 ENV LC_ALL=C 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -12,8 +11,8 @@ ARG OPENLDAP_ORGANISATION
 
 # Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 # If explicit uid or gid is given, use it.
-RUN LDAP_GID=101; if [ ! -z "${OPENLDAP_GID}" ]; then LDAP_GID="${OPENLDAP_GID}"; fi; groupadd -r -g ${LDAP_GID} openldap;
-RUN LDAP_UID=100; if [ ! -z "${OPENLDAP_UID}" ]; then LDAP_UID="${OPENLDAP_UID}"; fi; useradd -r -g openldap -u ${LDAP_UID} openldap
+RUN LDAP_GID=101; if [ -n "${OPENLDAP_GID}" ]; then LDAP_GID="${OPENLDAP_GID}"; fi; groupadd -r -g ${LDAP_GID} openldap;
+RUN LDAP_UID=100; if [ -n "${OPENLDAP_UID}" ]; then LDAP_UID="${OPENLDAP_UID}"; fi; useradd -r -g openldap -u ${LDAP_UID} openldap
 
 # now install additional tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
