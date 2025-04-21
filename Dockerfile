@@ -28,7 +28,7 @@ RUN apt-get remove -y --purge --auto-remove \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # COPY the content from rootfs into the container
-ADD rootfs/ /
+COPY rootfs/ /
 
 # make the default ldap port available
 EXPOSE 389 636
